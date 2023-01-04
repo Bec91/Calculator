@@ -1,27 +1,32 @@
-import './App.css';
+import './App.scss';
 
 function App() {
   return (
     <div className="App">
-      
-      <button>AC</button>
-      <button>DEL</button>
-      <button>/</button>
-      <button>1</button>
-      <button>2</button>
-      <button>3</button>
-      <button>*</button>
-      <button>4</button>
-      <button>5</button>
-      <button>6</button>
-      <button>+</button>
-      <button>7</button>
-      <button>8</button>
-      <button>9</button>
-      <button>-</button>
-      <button>.</button>
-      <button>0</button>
-      <button>=</button>      
+      <div className="calculator-grid">
+        <div className="output">
+          <div className="output__prevOperand">123,456 *</div>
+          <div className="output__currentOperand">123,456</div>
+        </div>
+        <button className="calculator-grid__btn span-two">AC</button>
+        <button className="calculator-grid__btn">DEL</button>
+        <button className="calculator-grid__btn">/</button>
+        <button className="calculator-grid__btn">1</button>
+        <button className="calculator-grid__btn">2</button>
+        <button className="calculator-grid__btn">3</button>
+        <button className="calculator-grid__btn">*</button>
+        <button className="calculator-grid__btn">4</button>
+        <button className="calculator-grid__btn">5</button>
+        <button className="calculator-grid__btn">6</button>
+        <button className="calculator-grid__btn">+</button>
+        <button className="calculator-grid__btn">7</button>
+        <button className="calculator-grid__btn">8</button>
+        <button className="calculator-grid__btn">9</button>
+        <button className="calculator-grid__btn">-</button>
+        <button className="calculator-grid__btn">.</button>
+        <button className="calculator-grid__btn">0</button>
+        <button className="calculator-grid__btn span-two">=</button>      
+      </div>
     </div>
   );
 }
