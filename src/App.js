@@ -3,6 +3,7 @@ import { useReducer } from "react";
 import DigitButton from './DigitButton';
 import OperationButton from './OperationButton';
 
+// CALCULATOR ACTIONS
   export const ACTIONS = {
     ADD_DIGIT: 'add-digit',
     CHOOSE_OPERATION: 'choose-operation',
@@ -10,9 +11,17 @@ import OperationButton from './OperationButton';
     DELETE_DIGIT: 'delete-digit',
     EVALUATE: 'evaluate'
   }
+
   function reducer(state, { type, payload }) {
     switch (type) {
       case ACTIONS.ADD_DIGIT:
+        if(state.overwrite) {
+          return {
+            ...state,
+            currentOperand: payload.digit,
+            overwrite: false
+          }
+        }
         if (payload.digit === "0" && state.currentOperand === "0") {
           return state
         }
@@ -29,6 +38,13 @@ import OperationButton from './OperationButton';
         if(state.currentOperand == null && state.previousOperand == null) {
           return state
         }
+        if(state.currentOperand == null){
+          return {
+            ...state,
+            operation: payload.operation
+          }
+        }
+
         if(state.previousOperand == null ) {
           return {
             ...state,
@@ -46,11 +62,46 @@ import OperationButton from './OperationButton';
       
       case ACTIONS.CLEAR:
         return {} 
+
+      case ACTIONS.DELETE_DIGIT:
+        if(state.overwrite) {
+          return {
+            ...state,
+            overwrite: false,
+            currentOperand: null
+          }
+        }
+        if(state.currentOperand == null) return state
+        if (state.currentOperand === 1) {
+          return {
+            ...state,
+            currentOperand: null
+          }
+        }
+        return {
+          ...state,
+          currentOperand: state.currentOperand.slice(0, -1)
+        }
+        case ACTIONS.EVALUATE:
+          if( 
+            state.operation == null || 
+            state.currentOperand == null || 
+            state.previousOperand == null
+          ) {
+            return state
+          }
+          return {
+            ...state,
+            overwrite: true,
+            previousOperand: null,
+            operation: null,
+            currentOperand: evaluate(state)
+          }
     }
 
   }
 
-
+  // MATH OPERATIONS
   function evaluate({ currentOperand, previousOperand, operation }) {
     const prev = parseFloat(previousOperand)
     const current = parseFloat(currentOperand)
@@ -76,6 +127,18 @@ import OperationButton from './OperationButton';
     return computation.toString()
   }
 
+  // COMMA/DECIMAL SEPERATIONS
+  const INTEGER_FORMATTER = new Intl.NumberFormat("en-us", {
+    maximumFractionDigits: 0,
+  })
+
+  function formatOperand(operand) {
+    if (operand == null) return
+    const [ integer, decimal ] = operand.split('.')
+    if (decimal == null) return INTEGER_FORMATTER.format(integer)
+    return `${INTEGER_FORMATTER.format(integer)}.${decimal}`
+  }
+
 function App() {
 
   const [{ currentOperand, previousOperand, operation }, dispatch ] = useReducer(reducer, {})
@@ -84,8 +147,8 @@ function App() {
     <div className="App">
       <div className="calculatorGrid">
         <div className="calculatorGrid__output">
-          <div className="calculatorGrid__previous">{previousOperand} {operation}</div>
-          <div className="calculatorGrid__current">{currentOperand}</div>
+          <div className="calculatorGrid__previous">{formatOperand(previousOperand)} {operation}</div>
+          <div className="calculatorGrid__current">{formatOperand(currentOperand)}</div>
         </div>
         <button
           className="calculatorGrid__btn calculatorGrid__spanTwo"
@@ -93,7 +156,13 @@ function App() {
         >
             AC
         </button>
-        <button className="calculatorGrid__btn">DEL</button>
+        <button 
+          className="calculatorGrid__btn"
+          onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}
+
+        >
+          DEL
+        </button>
         <OperationButton operation="/" dispatch={dispatch} />
         <DigitButton digit="1" dispatch={dispatch} />
         <DigitButton digit="2" dispatch={dispatch} />
@@ -109,7 +178,12 @@ function App() {
         <OperationButton operation="-" dispatch={dispatch} />
         <DigitButton digit="." dispatch={dispatch} />
         <DigitButton digit="0" dispatch={dispatch} />
-        <button className="calculatorGrid__btn calculatorGrid__spanTwo">=</button>      
+        <button 
+          className="calculatorGrid__btn calculatorGrid__spanTwo"
+          onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
+        >
+          =
+        </button>      
       </div>
     </div>
   );
