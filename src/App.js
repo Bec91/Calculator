@@ -1,30 +1,114 @@
 import './App.scss';
+import { useReducer } from "react";
+import DigitButton from './DigitButton';
+import OperationButton from './OperationButton';
+
+  export const ACTIONS = {
+    ADD_DIGIT: 'add-digit',
+    CHOOSE_OPERATION: 'choose-operation',
+    CLEAR: 'clear',
+    DELETE_DIGIT: 'delete-digit',
+    EVALUATE: 'evaluate'
+  }
+  function reducer(state, { type, payload }) {
+    switch (type) {
+      case ACTIONS.ADD_DIGIT:
+        if (payload.digit === "0" && state.currentOperand === "0") {
+          return state
+        }
+        if (payload.digit === "." && state.currentOperand.includes(".")) {
+          return state
+        }
+
+        return {
+          ...state,
+          currentOperand: `${state.currentOperand || ""}${payload.digit}`,
+      };
+      
+      case ACTIONS.CHOOSE_OPERATION: 
+        if(state.currentOperand == null && state.previousOperand == null) {
+          return state
+        }
+        if(state.previousOperand == null ) {
+          return {
+            ...state,
+            operation: payload.operation,
+            previousOperand: state.currentOperand,
+            currentOperand: null,
+          }
+        }
+        return {
+          ...state,
+          previousOperand: evaluate(state),
+          operation: payload.operation,
+          currentOperand: null
+        }
+      
+      case ACTIONS.CLEAR:
+        return {} 
+    }
+
+  }
+
+
+  function evaluate({ currentOperand, previousOperand, operation }) {
+    const prev = parseFloat(previousOperand)
+    const current = parseFloat(currentOperand)
+
+    if(isNaN(prev) || isNaN(current)) return "";
+    let computation = ""
+
+    switch (operation) {
+      case "+":
+        computation = prev + current
+      break
+      case "-":
+        computation = prev - current
+      break
+      case "*":
+        computation = prev * current
+      break
+      case "/":
+        computation = prev / current
+      break
+
+    }
+    return computation.toString()
+  }
 
 function App() {
+
+  const [{ currentOperand, previousOperand, operation }, dispatch ] = useReducer(reducer, {})
+
   return (
     <div className="App">
       <div className="calculatorGrid">
         <div className="calculatorGrid__output">
-          <div className="calculatorGrid__previous">123,456 *</div>
-          <div className="calculatorGrid__current">123,456</div>
+          <div className="calculatorGrid__previous">{previousOperand} {operation}</div>
+          <div className="calculatorGrid__current">{currentOperand}</div>
         </div>
-        <button className="calculatorGrid__btn calculatorGrid__spanTwo">AC</button>
+        <button
+          className="calculatorGrid__btn calculatorGrid__spanTwo"
+          onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+        >
+            AC
+        </button>
         <button className="calculatorGrid__btn">DEL</button>
-        <button className="calculatorGrid__btn">/</button>
-        <button className="calculatorGrid__btn">1</button>
-        <button className="calculatorGrid__btn">2</button>
-        <button className="calculatorGrid__btn">3</button>
-        <button className="calculatorGrid__btn">*</button>
-        <button className="calculatorGrid__btn">4</button>
-        <button className="calculatorGrid__btn">5</button>
-        <button className="calculatorGrid__btn">6</button>
-        <button className="calculatorGrid__btn">+</button>
-        <button className="calculatorGrid__btn">7</button>
-        <button className="calculatorGrid__btn">8</button>
-        <button className="calculatorGrid__btn">9</button>
-        <button className="calculatorGrid__btn">-</button>
-        <button className="calculatorGrid__btn">.</button>
-        <button className="calculatorGrid__btn">0</button>
+        <OperationButton operation="/" dispatch={dispatch} />
+        <DigitButton digit="1" dispatch={dispatch} />
+        <DigitButton digit="2" dispatch={dispatch} />
+        <DigitButton digit="3" dispatch={dispatch} />
+        <OperationButton operation="*" dispatch={dispatch} />
+        <DigitButton digit="4" dispatch={dispatch} />
+        <DigitButton digit="5" dispatch={dispatch} />
+        <DigitButton digit="6" dispatch={dispatch} />
+        <OperationButton operation="+" dispatch={dispatch} />
+        <DigitButton digit="7" dispatch={dispatch} />
+        <DigitButton digit="8" dispatch={dispatch} />
+        <DigitButton digit="9" dispatch={dispatch} />
+        <OperationButton operation="-" dispatch={dispatch} />
+        <DigitButton digit="." dispatch={dispatch} />
+        <DigitButton digit="0" dispatch={dispatch} />
         <button className="calculatorGrid__btn calculatorGrid__spanTwo">=</button>      
       </div>
     </div>
