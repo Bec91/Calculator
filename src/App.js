@@ -33,7 +33,6 @@ import OperationButton from './OperationButton';
           ...state,
           currentOperand: `${state.currentOperand || ""}${payload.digit}`,
       };
-      
       case ACTIONS.CHOOSE_OPERATION: 
         if(state.currentOperand == null && state.previousOperand == null) {
           return state
@@ -59,7 +58,7 @@ import OperationButton from './OperationButton';
           operation: payload.operation,
           currentOperand: null
         }
-      
+
       case ACTIONS.CLEAR:
         return {} 
 
@@ -98,7 +97,7 @@ import OperationButton from './OperationButton';
             currentOperand: evaluate(state)
           }
     }
-
+    
   }
 
   // MATH OPERATIONS
